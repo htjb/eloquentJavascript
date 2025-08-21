@@ -9,6 +9,31 @@ const roads = [
   "Marketplace-Town Hall",       "Shop-Town Hall"
 ];
 
+class VillageState {
+    constructor(place, parcels){
+        this.place = place
+        this.parcels = parcels
+    }
+
+    move(destination){
+        // check if there is a roac from the current place to the destination
+        // otherwise return the old state since no valid move
+        if (!roadGraph[this.place].includes(destination)){
+            return this
+        } else {
+            // parcels that the robot is carrying
+            // map moves parcels to the new location
+            // filter devlievers parcels if the destination and address match.
+            let parcels = this.parcels.map(p => {
+                if (p.place != this.place) return p // leave it alone if not at destination?
+                return {place: destination, address: p.address} 
+            }).filter(p => p.place != p.address)
+            // create a new state with the destination as the new place
+            return new VillageState(destination, parcels)
+        }
+    }
+}
+
 function buildGraph(edges) {
     let graph = Object.create(null) // object with no prototype
     function addEdge(from, to){
@@ -28,6 +53,13 @@ function buildGraph(edges) {
     return graph
 }
 
-const graph = buildGraph(roads)
+const roadGraph = buildGraph(roads)
 
-console.log(graph)
+let first = new VillageState("Post Office",
+    [{place: "Post Office", address: "Alice's House"}]
+)
+let next = first.move("Alice's House")
+
+console.log(next.place)
+console.log(next.parcels)
+console.log(first.place)
